@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/borodkir/codeLinux/PRC2Project/2048",
+            "binaryPath": "/home/borodkir/codeLinux/PRC2Project/2048/main",
+            "binaryArgs": []
+        }
+    ]
+}
