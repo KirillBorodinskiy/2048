@@ -163,8 +163,7 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
  /usr/include/SDL2/SDL_image.h /usr/include/SDL2/SDL.h \
- /usr/include/c++/11/filesystem /usr/include/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
@@ -447,7 +446,6 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/SDL2/SDL_misc.h:
 /usr/include/SDL2/SDL_image.h:
 /usr/include/SDL2/SDL.h:
-/usr/include/c++/11/filesystem:
 /usr/include/stdio.h:
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
 /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
