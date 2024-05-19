@@ -10,6 +10,11 @@ const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 const int GRID_SIZE = 4;
 const int TILE_SIZE = SCREEN_WIDTH/3/4;
+const int SQUARE_SIZE = SCREEN_WIDTH/3;
+const int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+const int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+const int TILE_MARGIN = 10;
+
 const SDL_Color TILE_COLORS[] = {
     {205, 193, 180, 255}, // 0
     {238, 228, 218, 255}, // 2
@@ -63,15 +68,12 @@ bool init(){
 
 bool createBackground(){
     SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0x00);
-    SDL_RenderClear(Renderer);
 
-    int SQUARE_SIZE = SCREEN_WIDTH/3;
-    int x = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
-    int y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+    SDL_RenderClear(Renderer);
 
     SDL_SetRenderDrawColor(Renderer, 187, 173, 160, 0xFF);
 
-    SDL_Rect fillRect = { x, y, SQUARE_SIZE, SQUARE_SIZE };
+    SDL_Rect fillRect = { MARGIN_X, MARGIN_Y, SQUARE_SIZE, SQUARE_SIZE };
 
     SDL_RenderFillRect(Renderer, &fillRect);
 
@@ -110,8 +112,8 @@ bool addRandomTile(boardType& board){//Passing by reference to not create a copy
 
     int x = getRandomNumber(0,3);
     int y = getRandomNumber(0, 3);
-    //DEBUG!
-    printf("x: %d, y: %d\n", x, y);
+    // //DEBUG!
+    // printf("x: %d, y: %d\n", x, y);
     if(board[x][y] == 0){//If the tile is empty, add a '2' tile there
         board[x][y] = 2;
         return true;
@@ -121,34 +123,28 @@ bool addRandomTile(boardType& board){//Passing by reference to not create a copy
 }
 bool drawTile(boardType& board){//Passing by reference to not create a copy
 
-    for(int y = 0; y < GRID_SIZE; ++y){
-        for(int x = 0; x < GRID_SIZE; ++x){
+    for(int y = 0; y < GRID_SIZE; y++){
+        for(int x = 0; x < GRID_SIZE; x++){
             int value = board[x][y];
             if(value > 0){
                 //Returns the index for the color using the value(As they are powers of 2)
                 int index=log2(value);
                 SDL_SetRenderDrawColor(Renderer, TILE_COLORS[index].r, TILE_COLORS[index].g, TILE_COLORS[index].b, TILE_COLORS[index].a);
-                SDL_Rect tileRect = {x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+                SDL_Rect tileRect = {MARGIN_X+TILE_MARGIN+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*2};
                 SDL_RenderFillRect(Renderer, &tileRect);
             }else{continue;}
         }
     }
     return true;      
 }
-void initBoard(){
+
+boardType initBoard(){
     boardType board={0};
     addRandomTile(board);
     addRandomTile(board);
 
-    //DEBUG!
-    for(int y = 0; y < GRID_SIZE; ++y){
-        for(int x = 0; x < GRID_SIZE; ++x){
-            printf("%d ", board[x][y]);
-        }
-        printf("\n");
-    }
     drawTile(board);
-    // return board;
+    return board;
 }
 
 
@@ -169,7 +165,7 @@ int main(){
     }else{
         bool quit = false;
         SDL_Event e;
-        initBoard();
+        boardType board = initBoard();
         while(!quit){//Main loop
             SDL_RenderClear(Renderer);
             while(SDL_PollEvent(&e) != 0){
@@ -178,6 +174,7 @@ int main(){
                 }
             }
             createBackground();
+            drawTile(board);
             SDL_RenderCopy(Renderer, Texture, NULL, NULL);
             SDL_RenderPresent(Renderer);
         }
