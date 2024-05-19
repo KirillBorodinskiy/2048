@@ -15,6 +15,16 @@ const int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
 const int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 const int TILE_MARGIN = 10;
 
+enum KeyPressSurfaces
+{
+	KEY_PRESS_SURFACE_DEFAULT,
+	KEY_PRESS_SURFACE_UP,
+	KEY_PRESS_SURFACE_DOWN,
+	KEY_PRESS_SURFACE_LEFT,
+	KEY_PRESS_SURFACE_RIGHT,
+	KEY_PRESS_SURFACE_TOTAL
+};
+
 const SDL_Color TILE_COLORS[] = {
     {205, 193, 180, 255}, // 0
     {238, 228, 218, 255}, // 2
@@ -108,12 +118,11 @@ int getRandomNumber(int min, int max) {
     std::uniform_int_distribution<> distrib(min, max);
     return distrib(gen);
 }
+//Adds a random tile to the board when there are empty tiles left
 bool addRandomTile(boardType& board){//Passing by reference to not create a copy
-
+    // TODO: Add a check to see if there are empty tiles left!!!!
     int x = getRandomNumber(0,3);
     int y = getRandomNumber(0, 3);
-    // //DEBUG!
-    // printf("x: %d, y: %d\n", x, y);
     if(board[x][y] == 0){//If the tile is empty, add a '2' tile there
         board[x][y] = 2;
         return true;
@@ -137,7 +146,14 @@ bool drawTile(boardType& board){//Passing by reference to not create a copy
     }
     return true;      
 }
-
+void logBoard(boardType& board){
+    for(int y = 0; y < GRID_SIZE; y++){
+        for(int x = 0; x < GRID_SIZE; x++){
+            printf("%d ", board[x][y]);
+        }
+        printf("\n");
+    }
+}
 boardType initBoard(){
     boardType board={0};
     addRandomTile(board);
@@ -157,8 +173,85 @@ void close(){
     SDL_DestroyWindow(Window);
     Window = NULL;
     SDL_Quit();
+    
 }
 
+bool moveUp(boardType& board){
+    for(int x=0;x<GRID_SIZE;x++){
+        for(int y=0;y<GRID_SIZE;y++){
+            if(board[x][y] !=0){
+                while(y>0 && board[x][y-1] == 0){//It will not go out of range because y>0
+                    board[x][y-1] = board[x][y];
+                    board[x][y] = 0;
+                    y--;
+                }
+                if(y>0 && board[x][y-1] == board[x][y]){//If the tile above is the same, merge them
+                    board[x][y-1] *= 2;
+                    board[x][y] = 0;
+                }
+            }
+        }
+    }
+    addRandomTile(board);
+    return true;
+}
+bool moveDown(boardType& board){
+    for(int x=0;x<GRID_SIZE;x++){
+        for(int y=GRID_SIZE-1;y>=0;y--){
+            if(board[x][y] !=0){
+                while(y<GRID_SIZE-1 && board[x][y+1] == 0){//It will not go out of range because y<3(GRID_SIZE-1)
+                    board[x][y+1] = board[x][y];
+                    board[x][y] = 0;
+                    y++;
+                }
+                if(y<GRID_SIZE-1 && board[x][y+1] == board[x][y]){//If the tile below is the same, merge them
+                    board[x][y+1] *= 2;
+                    board[x][y] = 0;
+                }
+            }
+        }
+    }
+    addRandomTile(board);
+    return true;
+}
+bool moveLeft(boardType& board){
+    for(int y=0;y<GRID_SIZE;y++){
+        for(int x=0;x<GRID_SIZE;x++){
+            if(board[x][y] !=0){
+                while(x>0 && board[x-1][y] == 0){//It will not go out of range because x>0
+                    board[x-1][y] = board[x][y];
+                    board[x][y] = 0;
+                    x--;
+                }
+                if(x>0 && board[x-1][y] == board[x][y]){//If the tile to the left is the same, merge them
+                    board[x-1][y] *= 2;
+                    board[x][y] = 0;
+                }
+            }
+        }
+    }
+    addRandomTile(board);
+    return true;
+}
+bool moveRight(boardType& board){
+    for(int y=0;y<GRID_SIZE;y++){
+        for(int x=GRID_SIZE-1;x>=0;x--){
+            if(board[x][y] !=0){
+                while(x<GRID_SIZE-1 && board[x+1][y] == 0){//It will not go out of range because x<3(GRID_SIZE-1)
+                    board[x+1][y] = board[x][y];
+                    board[x][y] = 0;
+                    x++;
+                }
+                if(x<GRID_SIZE-1 && board[x+1][y] == board[x][y]){//If the tile to the right is the same, merge them
+                    board[x+1][y] *= 2;
+                    board[x][y] = 0;
+                }
+            }
+        }
+    }
+    addRandomTile(board);
+    return true;
+}
 int main(){
     if(!init()){
         printf("Failed to initialize!\n");
@@ -171,6 +264,24 @@ int main(){
             while(SDL_PollEvent(&e) != 0){
                 if(e.type == SDL_QUIT){
                     quit = true;
+                } else if( e.type == SDL_KEYDOWN ){//User presses a key
+                    switch( e.key.keysym.sym )
+                    {
+                        case SDLK_UP:
+                            moveUp(board);
+                            break;
+                        case SDLK_DOWN:
+                            moveDown(board);
+                            break;
+                        case SDLK_LEFT:
+                            moveLeft(board);
+                            break;
+                        case SDLK_RIGHT:
+                            moveRight(board);
+                            break;
+                        default:
+                        break;
+                    }
                 }
             }
             createBackground();
