@@ -40,11 +40,7 @@ const SDL_Color TILE_COLORS[] = {
     {237, 194, 46, 255}   // 2048
 };
 typedef std::array<std::array<int,GRID_SIZE>,GRID_SIZE> boardType;
-bool init();
-bool createBackground();
-bool loadTextures();
-void close();
-void fillCenterSquare(); 
+
 
 SDL_Window* Window = NULL;
 SDL_Renderer* Renderer = NULL;
@@ -76,7 +72,7 @@ bool init(){
     return successfulness;
 }
 
-bool createBackground(){
+bool drawBackground(){
     SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0x00);
 
     SDL_RenderClear(Renderer);
@@ -92,25 +88,7 @@ bool createBackground(){
     return true;
 }
 
-// SDL_Texture* loadTexture(std::string path){
-//     SDL_Texture* newTexture = NULL;
-//     SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-//     if(loadedSurface == NULL){
-//         printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
-//     }else{
-//         newTexture = SDL_CreateTextureFromSurface(Renderer, loadedSurface);
-//         if(newTexture == NULL){
-//             printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-//         }
-//         SDL_FreeSurface(loadedSurface);
-//     }
-//     return newTexture;
-// }
 
-// //Function to create the center square for the game
-// void fillCenterSquare(){
-    
-// }
 std::random_device rd;
 std::mt19937 gen(rd());
 
@@ -293,10 +271,9 @@ int main(){
                     }
                 }
             }
-            createBackground();
-            drawTile(board);
-            SDL_RenderCopy(Renderer, Texture, NULL, NULL);
-            SDL_RenderPresent(Renderer);
+            if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
+            if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
+            SDL_RenderPresent(Renderer);//Updates the screen
         }
     }
     close();
