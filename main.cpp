@@ -120,7 +120,16 @@ int getRandomNumber(int min, int max) {
 }
 //Adds a random tile to the board when there are empty tiles left
 bool addRandomTile(boardType& board){//Passing by reference to not create a copy
-    // TODO: Add a check to see if there are empty tiles left!!!!
+    bool emptySpaces=false;
+    for(int y = 0; y < GRID_SIZE; y++){
+        for(int x = 0; x < GRID_SIZE; x++){
+            if(board[x][y] == 0){
+                emptySpaces=true;
+            }
+        }
+    }if(!emptySpaces){
+        return false;
+    }
     int x = getRandomNumber(0,3);
     int y = getRandomNumber(0, 3);
     if(board[x][y] == 0){//If the tile is empty, add a '2' tile there
