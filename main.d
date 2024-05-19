@@ -163,7 +163,25 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
  /usr/include/SDL2/SDL_image.h /usr/include/SDL2/SDL.h \
- /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/c++/11/array /usr/include/c++/11/utility \
+ /usr/include/c++/11/bits/stl_relops.h \
+ /usr/include/c++/11/bits/stl_pair.h /usr/include/c++/11/bits/move.h \
+ /usr/include/c++/11/type_traits /usr/include/c++/11/initializer_list \
+ /usr/include/c++/11/bits/functexcept.h \
+ /usr/include/c++/11/bits/exception_defines.h \
+ /usr/include/c++/11/bits/stl_algobase.h \
+ /usr/include/c++/11/bits/cpp_type_traits.h \
+ /usr/include/c++/11/ext/type_traits.h \
+ /usr/include/c++/11/ext/numeric_traits.h \
+ /usr/include/c++/11/bits/stl_iterator_base_types.h \
+ /usr/include/c++/11/bits/stl_iterator_base_funcs.h \
+ /usr/include/c++/11/bits/concept_check.h \
+ /usr/include/c++/11/debug/assertions.h \
+ /usr/include/c++/11/bits/stl_iterator.h \
+ /usr/include/c++/11/bits/ptr_traits.h /usr/include/c++/11/debug/debug.h \
+ /usr/include/c++/11/bits/predefined_ops.h \
+ /usr/include/c++/11/bits/range_access.h /usr/include/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
@@ -173,9 +191,7 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/stdio2.h /usr/include/c++/11/cmath \
- /usr/include/c++/11/bits/cpp_type_traits.h \
- /usr/include/c++/11/ext/type_traits.h /usr/include/math.h \
- /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
@@ -188,19 +204,6 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/stringfwd.h \
  /usr/include/c++/11/bits/memoryfwd.h \
  /usr/include/c++/11/bits/char_traits.h \
- /usr/include/c++/11/bits/stl_algobase.h \
- /usr/include/c++/11/bits/functexcept.h \
- /usr/include/c++/11/bits/exception_defines.h \
- /usr/include/c++/11/ext/numeric_traits.h \
- /usr/include/c++/11/bits/stl_pair.h /usr/include/c++/11/bits/move.h \
- /usr/include/c++/11/type_traits \
- /usr/include/c++/11/bits/stl_iterator_base_types.h \
- /usr/include/c++/11/bits/stl_iterator_base_funcs.h \
- /usr/include/c++/11/bits/concept_check.h \
- /usr/include/c++/11/debug/assertions.h \
- /usr/include/c++/11/bits/stl_iterator.h \
- /usr/include/c++/11/bits/ptr_traits.h /usr/include/c++/11/debug/debug.h \
- /usr/include/c++/11/bits/predefined_ops.h \
  /usr/include/c++/11/bits/postypes.h /usr/include/c++/11/cwchar \
  /usr/include/wchar.h /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
@@ -218,8 +221,6 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/cxxabi_forced.h \
  /usr/include/c++/11/bits/stl_function.h \
  /usr/include/c++/11/backward/binders.h \
- /usr/include/c++/11/bits/range_access.h \
- /usr/include/c++/11/initializer_list \
  /usr/include/c++/11/bits/basic_string.h \
  /usr/include/c++/11/ext/atomicity.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h \
@@ -456,6 +457,28 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/SDL2/SDL_misc.h:
 /usr/include/SDL2/SDL_image.h:
 /usr/include/SDL2/SDL.h:
+/usr/include/c++/11/array:
+/usr/include/c++/11/utility:
+/usr/include/c++/11/bits/stl_relops.h:
+/usr/include/c++/11/bits/stl_pair.h:
+/usr/include/c++/11/bits/move.h:
+/usr/include/c++/11/type_traits:
+/usr/include/c++/11/initializer_list:
+/usr/include/c++/11/bits/functexcept.h:
+/usr/include/c++/11/bits/exception_defines.h:
+/usr/include/c++/11/bits/stl_algobase.h:
+/usr/include/c++/11/bits/cpp_type_traits.h:
+/usr/include/c++/11/ext/type_traits.h:
+/usr/include/c++/11/ext/numeric_traits.h:
+/usr/include/c++/11/bits/stl_iterator_base_types.h:
+/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
+/usr/include/c++/11/bits/concept_check.h:
+/usr/include/c++/11/debug/assertions.h:
+/usr/include/c++/11/bits/stl_iterator.h:
+/usr/include/c++/11/bits/ptr_traits.h:
+/usr/include/c++/11/debug/debug.h:
+/usr/include/c++/11/bits/predefined_ops.h:
+/usr/include/c++/11/bits/range_access.h:
 /usr/include/stdio.h:
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
 /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
@@ -468,8 +491,6 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/stdio.h:
 /usr/include/x86_64-linux-gnu/bits/stdio2.h:
 /usr/include/c++/11/cmath:
-/usr/include/c++/11/bits/cpp_type_traits.h:
-/usr/include/c++/11/ext/type_traits.h:
 /usr/include/math.h:
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:
 /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
@@ -485,21 +506,6 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/c++/11/bits/stringfwd.h:
 /usr/include/c++/11/bits/memoryfwd.h:
 /usr/include/c++/11/bits/char_traits.h:
-/usr/include/c++/11/bits/stl_algobase.h:
-/usr/include/c++/11/bits/functexcept.h:
-/usr/include/c++/11/bits/exception_defines.h:
-/usr/include/c++/11/ext/numeric_traits.h:
-/usr/include/c++/11/bits/stl_pair.h:
-/usr/include/c++/11/bits/move.h:
-/usr/include/c++/11/type_traits:
-/usr/include/c++/11/bits/stl_iterator_base_types.h:
-/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
-/usr/include/c++/11/bits/concept_check.h:
-/usr/include/c++/11/debug/assertions.h:
-/usr/include/c++/11/bits/stl_iterator.h:
-/usr/include/c++/11/bits/ptr_traits.h:
-/usr/include/c++/11/debug/debug.h:
-/usr/include/c++/11/bits/predefined_ops.h:
 /usr/include/c++/11/bits/postypes.h:
 /usr/include/c++/11/cwchar:
 /usr/include/wchar.h:
@@ -524,8 +530,6 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/c++/11/bits/cxxabi_forced.h:
 /usr/include/c++/11/bits/stl_function.h:
 /usr/include/c++/11/backward/binders.h:
-/usr/include/c++/11/bits/range_access.h:
-/usr/include/c++/11/initializer_list:
 /usr/include/c++/11/bits/basic_string.h:
 /usr/include/c++/11/ext/atomicity.h:
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:

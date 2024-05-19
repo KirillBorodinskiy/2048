@@ -1,6 +1,7 @@
 #include "SDL_render.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include <array>
 #include <stdio.h>
 #include <cmath>
 #include <random>
@@ -23,7 +24,7 @@ const SDL_Color TILE_COLORS[] = {
     {237, 197, 63, 255},  // 1024
     {237, 194, 46, 255}   // 2048
 };
-
+typedef std::array<std::array<int,GRID_SIZE>,GRID_SIZE> boardType;
 bool init();
 bool createBackground();
 bool loadTextures();
@@ -105,21 +106,20 @@ int getRandomNumber(int min, int max) {
     std::uniform_int_distribution<> distrib(min, max);
     return distrib(gen);
 }
-bool addRandomTile(int board[GRID_SIZE][GRID_SIZE]){
+bool addRandomTile(boardType& board){//Passing by reference to not create a copy
 
     int x = getRandomNumber(0,3);
     int y = getRandomNumber(0, 3);
     //DEBUG!
     printf("x: %d, y: %d\n", x, y);
-
-    if(board[x][y] == 0){
+    if(board[x][y] == 0){//If the tile is empty, add a '2' tile there
         board[x][y] = 2;
         return true;
     }else{
         return addRandomTile(board);
     }
 }
-bool drawTile(int board[GRID_SIZE][GRID_SIZE]){
+bool drawTile(boardType& board){//Passing by reference to not create a copy
 
     for(int y = 0; y < GRID_SIZE; ++y){
         for(int x = 0; x < GRID_SIZE; ++x){
@@ -136,7 +136,7 @@ bool drawTile(int board[GRID_SIZE][GRID_SIZE]){
     return true;      
 }
 void initBoard(){
-    int board[GRID_SIZE][GRID_SIZE] = {0};
+    boardType board={0};
     addRandomTile(board);
     addRandomTile(board);
 
