@@ -1,16 +1,17 @@
-#include "SDL_pixels.h"
-#include "SDL_render.h"
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <array>
-#include <stdio.h>
-#include <cmath>
-#include <random>
-#include <string>
+#include <SDL.h>//Main SDL library
+#include <SDL_ttf.h>//SDL_ttf for text rendering
+#include <array>//For 2D arrays
+#include <stdio.h>//For printf
+#include <cmath>//For log2
+#include <random>//For random number generation
+#include <string>//For std::to_string
 
-const int GRID_SIZE = 4;
+const int GRID_SIZE = 4;//CAN BE CHANGED TO ANY (practical) SIZE. Default is 4
+
 const int TILE_MARGIN = 10;
 const int FONT_SIZE = 250;
+
+//These numbers will change when the window is resized
 int SCREEN_WIDTH = 1920;
 int SCREEN_HEIGHT = 1080;
 int TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
@@ -18,14 +19,6 @@ int SQUARE_SIZE = SCREEN_WIDTH/3;
 int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
 int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 
-enum KeyPressSurfaces{
-	KEY_PRESS_SURFACE_DEFAULT,
-	KEY_PRESS_SURFACE_UP,
-	KEY_PRESS_SURFACE_DOWN,
-	KEY_PRESS_SURFACE_LEFT,
-	KEY_PRESS_SURFACE_RIGHT,
-	KEY_PRESS_SURFACE_TOTAL
-};
 
 const SDL_Color TILE_COLORS[] = {
     {205, 193, 180, 255}, // 0
@@ -42,9 +35,9 @@ const SDL_Color TILE_COLORS[] = {
     {237, 194, 46, 255}   // 2048
 };
 
-typedef std::array<std::array<int,GRID_SIZE>,GRID_SIZE> boardType;
+typedef std::array<std::array<unsigned int,GRID_SIZE>,GRID_SIZE> boardType;//2D array for the board
 
-
+//SDL variables pre-declared and initialized to NULL
 SDL_Window* Window = NULL;
 SDL_Renderer* Renderer = NULL;
 SDL_Texture* Texture = NULL;
@@ -85,6 +78,8 @@ bool init(){
     return true;
 }
 
+
+//Draws the background of the game
 bool drawBackground(){
     SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0x00);//Sets the background color
 
@@ -99,7 +94,6 @@ bool drawBackground(){
     return true;
 }
 
-
 std::random_device rd;
 std::mt19937 gen(rd());
 
@@ -107,10 +101,7 @@ int getRandomNumber(int min, int max) {
     std::uniform_int_distribution<> distrib(min, max);
     return distrib(gen);
 }
-//TODO: 
-void gameover(){
-    printf("Game over\n");
-}
+
 //Adds a random tile to the board when there are empty tiles left
 bool addRandomTile(boardType& board){//Passing by reference to not create a copy
     bool emptySpaces=false;
@@ -128,8 +119,8 @@ bool addRandomTile(boardType& board){//Passing by reference to not create a copy
     }
 
     //Generates a random position for the new tile
-    int x = getRandomNumber(0,3);
-    int y = getRandomNumber(0, 3);
+    int x = getRandomNumber(0, GRID_SIZE-1);
+    int y = getRandomNumber(0, GRID_SIZE-1);
 
     //If the tile is empty, add a '2' tile there
     if(board[x][y] == 0){
@@ -140,6 +131,8 @@ bool addRandomTile(boardType& board){//Passing by reference to not create a copy
         return addRandomTile(board);
     }
 }
+
+//Draws the tiles on the board
 bool drawTile(boardType& board){//Passing by reference to not create a copy
     //Going over all the tiles in the board
     for(int y = 0; y < GRID_SIZE; y++){
@@ -219,13 +212,14 @@ void close(){
     Renderer = NULL;
     SDL_DestroyWindow(Window);
     Window = NULL;
-    SDL_Quit();
     TTF_Quit();
     Font=NULL;
+    SDL_Quit();
 }
 
 //TODO make the moves actually boolean
 bool moveUp(boardType& board){
+    bool moved = false;
     for(int x=0;x<GRID_SIZE;x++){
         for(int y=0;y<GRID_SIZE;y++){
             if(board[x][y] !=0){
@@ -233,18 +227,21 @@ bool moveUp(boardType& board){
                     board[x][y-1] = board[x][y];
                     board[x][y] = 0;
                     y--;
+                    moved=true;
                 }
                 if(y>0 && board[x][y-1] == board[x][y]){//If the tile above is the same, merge them
                     board[x][y-1] *= 2;
                     board[x][y] = 0;
+                    moved=true;
                 }
             }
         }
     }
     addRandomTile(board);
-    return true;
+    return moved;
 }
 bool moveDown(boardType& board){
+    bool moved = false;
     for(int x=0;x<GRID_SIZE;x++){
         for(int y=GRID_SIZE-1;y>=0;y--){
             if(board[x][y] !=0){
@@ -252,18 +249,21 @@ bool moveDown(boardType& board){
                     board[x][y+1] = board[x][y];
                     board[x][y] = 0;
                     y++;
+                    moved=true;
                 }
                 if(y<GRID_SIZE-1 && board[x][y+1] == board[x][y]){//If the tile below is the same, merge them
                     board[x][y+1] *= 2;
                     board[x][y] = 0;
+                    moved=true;
                 }
             }
         }
     }
     addRandomTile(board);
-    return true;
+    return moved;
 }
 bool moveLeft(boardType& board){
+    bool moved = false;
     for(int y=0;y<GRID_SIZE;y++){
         for(int x=0;x<GRID_SIZE;x++){
             if(board[x][y] !=0){
@@ -271,18 +271,21 @@ bool moveLeft(boardType& board){
                     board[x-1][y] = board[x][y];
                     board[x][y] = 0;
                     x--;
+                    moved=true;
                 }
                 if(x>0 && board[x-1][y] == board[x][y]){//If the tile to the left is the same, merge them
                     board[x-1][y] *= 2;
                     board[x][y] = 0;
+                    moved=true;
                 }
             }
         }
     }
     addRandomTile(board);
-    return true;
+    return moved;
 }
 bool moveRight(boardType& board){
+    bool moved = false;
     for(int y=0;y<GRID_SIZE;y++){
         for(int x=GRID_SIZE-1;x>=0;x--){
             if(board[x][y] !=0){
@@ -290,16 +293,18 @@ bool moveRight(boardType& board){
                     board[x+1][y] = board[x][y];
                     board[x][y] = 0;
                     x++;
+                    moved=true;
                 }
                 if(x<GRID_SIZE-1 && board[x+1][y] == board[x][y]){//If the tile to the right is the same, merge them
                     board[x+1][y] *= 2;
                     board[x][y] = 0;
+                    moved=true;
                 }
             }
         }
     }
     addRandomTile(board);
-    return true;
+    return moved;
 }
 
 int main(){
@@ -310,31 +315,49 @@ int main(){
     }
 
     bool quit = false;
-    SDL_Event e;
+    SDL_Event event;
     boardType board = initBoard();//Initializes the board of size GRID_SIZE*GRID_SIZE
+    
+    std::array<bool,4> state = {1,1,1,1};//State of the moves, if all are 0, game is over
 
     while(!quit){//Main loop
 
-        while(SDL_PollEvent(&e) != 0){//Event handler
-            if(e.type == SDL_QUIT){
+        while(SDL_PollEvent(&event) != 0){//Event handler
+            if(event.type == SDL_QUIT){
                 quit = true;
-            } else if( e.type == SDL_KEYDOWN ){//User presses a key
-                switch( e.key.keysym.sym ){//TODO make it so that if 4 moves were made and the board is the same, game is over
+            } else if( event.type == SDL_KEYDOWN ){//User presses a key
+                switch( event.key.keysym.sym ){//TODO make it so that if 4 moves were made and the board is the same, game is over
                     case SDLK_UP:
                     case SDLK_w:
-                        moveUp(board);
+                        if(moveUp(board)){
+                            state.fill(1);
+                        }else{
+                            state[0]=0;
+                        }
                         break;
                     case SDLK_DOWN:
                     case SDLK_s:
-                        moveDown(board);
+                        if(moveDown(board)){
+                            state.fill(1);
+                        }else{
+                            state[1]=0;
+                        }
                         break;
                     case SDLK_LEFT:
                     case SDLK_a:
-                        moveLeft(board);
+                        if(moveLeft(board)){
+                            state.fill(1);
+                        }else{
+                            state[2]=0;
+                        }
                         break;
                     case SDLK_RIGHT:
                     case SDLK_d:
-                        moveRight(board);
+                        if(moveRight(board)){
+                            state.fill(1);
+                        }else{
+                            state[3]=0;
+                        }
                         break;
                     case SDLK_r:
                         board = initBoard();
@@ -345,12 +368,12 @@ int main(){
                     default:
                         break;
                 }
-            }else if( e.type == SDL_WINDOWEVENT ){
-                switch( e.window.event ){
+            }else if( event.type == SDL_WINDOWEVENT ){
+                switch( event.window.event ){
                     //Get new dimensions
                     case SDL_WINDOWEVENT_SIZE_CHANGED:
-                        SCREEN_WIDTH = e.window.data1;
-                        SCREEN_HEIGHT = e.window.data2;
+                        SCREEN_WIDTH = event.window.data1;
+                        SCREEN_HEIGHT = event.window.data2;
                         TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
                         SQUARE_SIZE = SCREEN_WIDTH/3;
                         MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
@@ -360,6 +383,10 @@ int main(){
                         break;
                 }
             }
+        }
+        if(state[0]==0 && state[1]==0 && state[2]==0 && state[3]==0){//If all moves are invalid, game is over
+            board=initBoard();
+            state.fill(1);
         }
         if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
         if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
