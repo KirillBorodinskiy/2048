@@ -8,13 +8,13 @@
 #include <random>
 #include <string>
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+int SCREEN_WIDTH = 1920;
+int SCREEN_HEIGHT = 1080;
+int TILE_SIZE = SCREEN_WIDTH/3/4;
+int SQUARE_SIZE = SCREEN_WIDTH/3;
+int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 const int GRID_SIZE = 4;
-const int TILE_SIZE = SCREEN_WIDTH/3/4;
-const int SQUARE_SIZE = SCREEN_WIDTH/3;
-const int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
-const int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 const int TILE_MARGIN = 10;
 const int FONT_SIZE = 250;
 
@@ -64,7 +64,7 @@ bool init(){
         printf( "Render scale is not set properly" );
     }
     //Creates the window
-    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(Window == NULL){
         printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
         successfulness = false;
@@ -344,9 +344,22 @@ int main(){
                     default:
                         break;
                 }
+            }else if( e.type == SDL_WINDOWEVENT ){
+                switch( e.window.event ){
+                    //Get new dimensions
+                    case SDL_WINDOWEVENT_SIZE_CHANGED:
+                        SCREEN_WIDTH = e.window.data1;
+                        SCREEN_HEIGHT = e.window.data2;
+                        TILE_SIZE = SCREEN_WIDTH/3/4;
+                        SQUARE_SIZE = SCREEN_WIDTH/3;
+                        MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+                        MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
-
         if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
         if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
         SDL_RenderPresent(Renderer);//Updates the screen
