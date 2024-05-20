@@ -18,8 +18,7 @@ int SQUARE_SIZE = SCREEN_WIDTH/3;
 int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
 int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 
-enum KeyPressSurfaces
-{
+enum KeyPressSurfaces{
 	KEY_PRESS_SURFACE_DEFAULT,
 	KEY_PRESS_SURFACE_UP,
 	KEY_PRESS_SURFACE_DOWN,
@@ -42,7 +41,6 @@ const SDL_Color TILE_COLORS[] = {
     {237, 197, 63, 255},  // 1024
     {237, 194, 46, 255}   // 2048
 };
-const SDL_Color TEXT_COLOR[] = {119, 110, 101, 255};
 
 typedef std::array<std::array<int,GRID_SIZE>,GRID_SIZE> boardType;
 
@@ -53,11 +51,9 @@ SDL_Texture* Texture = NULL;
 TTF_Font* Font = NULL;
 
 bool init(){
-    bool successfulness = true;
     //Initializes SDL
     if(SDL_Init(SDL_INIT_VIDEO)<0){
-        successfulness = false;
-        return successfulness;
+        return false;
     }
     //Sets the render scale quality
     if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "2" ) ){
@@ -67,30 +63,26 @@ bool init(){
     Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(Window == NULL){
         printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
-        successfulness = false;
-        return successfulness;
+        return false;
     }
     //Creates the renderer
     Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
     if(Renderer == NULL){
         printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-        successfulness = false;
-        return successfulness;
+        return false;
     }
     //Initializes SDL_ttf
     if(TTF_Init() == -1){
         printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-        successfulness = false;
-        return successfulness;
+        return false;
     }
     //Loads the font from clearSans.ttf
     Font = TTF_OpenFont( "clearSans.ttf", FONT_SIZE );
     if( Font == NULL ){
         printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
-        successfulness = false;
-        return successfulness;
+        return false;
     }
-    return successfulness;
+    return true;
 }
 
 bool drawBackground(){
@@ -100,7 +92,7 @@ bool drawBackground(){
 
     SDL_SetRenderDrawColor(Renderer, 187, 173, 160, 0xFF);//Sets the color of the play area
 
-    SDL_Rect fillRect = { MARGIN_X, MARGIN_Y, SQUARE_SIZE, SQUARE_SIZE };//Sizes for the play area
+    SDL_Rect fillRect = { MARGIN_X, MARGIN_Y, SQUARE_SIZE, SQUARE_SIZE };//Size for the play area
 
     SDL_RenderFillRect(Renderer, &fillRect);//Draws the play area
 
@@ -118,7 +110,6 @@ int getRandomNumber(int min, int max) {
 //TODO: 
 void gameover(){
     printf("Game over\n");
-
 }
 //Adds a random tile to the board when there are empty tiles left
 bool addRandomTile(boardType& board){//Passing by reference to not create a copy
@@ -330,16 +321,26 @@ int main(){
             } else if( e.type == SDL_KEYDOWN ){//User presses a key
                 switch( e.key.keysym.sym ){//TODO make it so that if 4 moves were made and the board is the same, game is over
                     case SDLK_UP:
+                    case SDLK_w:
                         moveUp(board);
                         break;
                     case SDLK_DOWN:
+                    case SDLK_s:
                         moveDown(board);
                         break;
                     case SDLK_LEFT:
+                    case SDLK_a:
                         moveLeft(board);
                         break;
                     case SDLK_RIGHT:
+                    case SDLK_d:
                         moveRight(board);
+                        break;
+                    case SDLK_r:
+                        board = initBoard();
+                        break;
+                    case SDLK_q:
+                        quit = true;
                         break;
                     default:
                         break;
