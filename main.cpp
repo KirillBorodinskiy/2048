@@ -111,6 +111,7 @@ int getRandomNumber(int min, int max) {
     std::uniform_int_distribution<> distrib(min, max);
     return distrib(gen);
 }
+//TODO: 
 void gameover(){
     printf("Game over\n");
 
@@ -175,6 +176,8 @@ bool drawTile(boardType& board){//Passing by reference to not create a copy
     }
     return true;      
 }
+
+//Displays the board into the console for debug
 void logBoard(boardType& board){
     for(int y = 0; y < GRID_SIZE; y++){
         for(int x = 0; x < GRID_SIZE; x++){
@@ -200,11 +203,10 @@ void close(){
     SDL_DestroyWindow(Window);
     Window = NULL;
     SDL_Quit();
-    Font=NULL;
     TTF_Quit();
-
-    
+    Font=NULL;
 }
+
 //TODO make the moves actually boolean
 bool moveUp(boardType& board){
     for(int x=0;x<GRID_SIZE;x++){
@@ -282,42 +284,47 @@ bool moveRight(boardType& board){
     addRandomTile(board);
     return true;
 }
+
 int main(){
     if(!init()){
         printf("Failed to initialize!\n");
-    }else{
-        bool quit = false;
-        SDL_Event e;
-        boardType board = initBoard();
-        while(!quit){//Main loop
-            SDL_RenderClear(Renderer);
-            while(SDL_PollEvent(&e) != 0){
-                if(e.type == SDL_QUIT){
-                    quit = true;
-                } else if( e.type == SDL_KEYDOWN ){//User presses a key
-                    switch( e.key.keysym.sym )
-                    {//TODO make it so that if 4 moves were made and the board is the same, game is over
-                        case SDLK_UP:
-                            moveUp(board);
-                            break;
-                        case SDLK_DOWN:
-                            moveDown(board);
-                            break;
-                        case SDLK_LEFT:
-                            moveLeft(board);
-                            break;
-                        case SDLK_RIGHT:
-                            moveRight(board);
-                            break;
-                        default:
+        close();
+        return 0;
+    }
+
+    bool quit = false;
+    SDL_Event e;
+    boardType board = initBoard();//Initializes the board of size GRID_SIZE*GRID_SIZE
+
+    while(!quit){//Main loop
+        SDL_RenderClear(Renderer);
+
+        while(SDL_PollEvent(&e) != 0){//Event handler
+            if(e.type == SDL_QUIT){
+                quit = true;
+            } else if( e.type == SDL_KEYDOWN ){//User presses a key
+                switch( e.key.keysym.sym ){//TODO make it so that if 4 moves were made and the board is the same, game is over
+                    case SDLK_UP:
+                        moveUp(board);
                         break;
-                    }
+                    case SDLK_DOWN:
+                        moveDown(board);
+                        break;
+                    case SDLK_LEFT:
+                        moveLeft(board);
+                        break;
+                    case SDLK_RIGHT:
+                        moveRight(board);
+                        break;
+                    default:
+                        break;
                 }
             }
-            if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
-            if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
-            SDL_RenderPresent(Renderer);//Updates the screen
         }
+
+        if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
+        if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
+        SDL_RenderPresent(Renderer);//Updates the screen
     }
     close();
     return 0;
