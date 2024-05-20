@@ -1,5 +1,5 @@
 main.o: main.cpp /usr/include/stdc-predef.h \
- /usr/include/SDL2/SDL_render.h /usr/include/SDL2/SDL_stdinc.h \
+ /usr/include/SDL2/SDL_pixels.h /usr/include/SDL2/SDL_stdinc.h \
  /usr/include/SDL2/SDL_config.h /usr/include/SDL2/SDL_platform.h \
  /usr/include/SDL2/begin_code.h /usr/include/SDL2/close_code.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
@@ -19,12 +19,13 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /usr/include/SDL2/SDL_rect.h /usr/include/SDL2/SDL_error.h \
- /usr/include/SDL2/SDL_pixels.h /usr/include/SDL2/SDL_endian.h \
- /usr/include/endian.h /usr/include/x86_64-linux-gnu/bits/endian.h \
+ /usr/include/SDL2/SDL_endian.h /usr/include/endian.h \
+ /usr/include/x86_64-linux-gnu/bits/endian.h \
  /usr/include/x86_64-linux-gnu/bits/endianness.h \
  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
  /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+ /usr/include/SDL2/SDL_render.h /usr/include/SDL2/SDL_rect.h \
+ /usr/include/SDL2/SDL_error.h /usr/include/SDL2/SDL_pixels.h \
  /usr/include/SDL2/SDL_rwops.h /usr/include/SDL2/SDL_video.h \
  /usr/include/SDL2/SDL_surface.h /usr/include/SDL2/SDL_blendmode.h \
  /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
@@ -162,7 +163,7 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /usr/include/SDL2/SDL_image.h /usr/include/SDL2/SDL.h \
+ /usr/include/SDL2/SDL_ttf.h /usr/include/SDL2/SDL.h \
  /usr/include/c++/11/array /usr/include/c++/11/utility \
  /usr/include/c++/11/bits/stl_relops.h \
  /usr/include/c++/11/bits/stl_pair.h /usr/include/c++/11/bits/move.h \
@@ -261,7 +262,7 @@ main.o: main.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/11/bits/random.tcc /usr/include/c++/11/numeric \
  /usr/include/c++/11/bits/stl_numeric.h
 /usr/include/stdc-predef.h:
-/usr/include/SDL2/SDL_render.h:
+/usr/include/SDL2/SDL_pixels.h:
 /usr/include/SDL2/SDL_stdinc.h:
 /usr/include/SDL2/SDL_config.h:
 /usr/include/SDL2/SDL_platform.h:
@@ -286,15 +287,16 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
-/usr/include/SDL2/SDL_rect.h:
-/usr/include/SDL2/SDL_error.h:
-/usr/include/SDL2/SDL_pixels.h:
 /usr/include/SDL2/SDL_endian.h:
 /usr/include/endian.h:
 /usr/include/x86_64-linux-gnu/bits/endian.h:
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 /usr/include/x86_64-linux-gnu/bits/byteswap.h:
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+/usr/include/SDL2/SDL_render.h:
+/usr/include/SDL2/SDL_rect.h:
+/usr/include/SDL2/SDL_error.h:
+/usr/include/SDL2/SDL_pixels.h:
 /usr/include/SDL2/SDL_rwops.h:
 /usr/include/SDL2/SDL_video.h:
 /usr/include/SDL2/SDL_surface.h:
@@ -455,7 +457,7 @@ main.o: main.cpp /usr/include/stdc-predef.h \
 /usr/include/SDL2/SDL_version.h:
 /usr/include/SDL2/SDL_locale.h:
 /usr/include/SDL2/SDL_misc.h:
-/usr/include/SDL2/SDL_image.h:
+/usr/include/SDL2/SDL_ttf.h:
 /usr/include/SDL2/SDL.h:
 /usr/include/c++/11/array:
 /usr/include/c++/11/utility:

@@ -2,7 +2,7 @@ CXX := g++
 
 CPPFLAGS := -MD -MP
 CXXFLAGS := -std=c++11 -Wall -Wextra -pedantic -O3 -g -I/usr/include/SDL2
-LDFLAGS := -lm -lSDL2 -lSDL2_image
+LDFLAGS := -lm -lSDL2 -lSDL2_ttf
 
 SOURCES = main.cpp
 TARGETS = $(SOURCES:%.cpp=%)
