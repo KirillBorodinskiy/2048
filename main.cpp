@@ -54,51 +54,55 @@ TTF_Font* Font = NULL;
 
 bool init(){
     bool successfulness = true;
+    //Initializes SDL
     if(SDL_Init(SDL_INIT_VIDEO)<0){
         successfulness = false;
-    }else{
-        if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "2" ) ){
-            printf( "Render scale is not set properly" );
-        }
-
-        Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-        if(Window == NULL){
-            successfulness = false;
-            printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
-        }else{
-            Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
-            if(Renderer == NULL){
-                successfulness = false;
-                printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-            }else{
-                SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0xFF);
-                if(TTF_Init() == -1){
-                    printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-                    successfulness = false;
-                }
-                Font = TTF_OpenFont( "clearSans.ttf", FONT_SIZE );
-                if( Font == NULL ){
-                    printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
-                    successfulness = false;
-                }
-            }
-        }
+        return successfulness;
+    }
+    //Sets the render scale quality
+    if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "2" ) ){
+        printf( "Render scale is not set properly" );
+    }
+    //Creates the window
+    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if(Window == NULL){
+        printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+        successfulness = false;
+        return successfulness;
+    }
+    //Creates the renderer
+    Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
+    if(Renderer == NULL){
+        printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+        successfulness = false;
+        return successfulness;
+    }
+    //Initializes SDL_ttf
+    if(TTF_Init() == -1){
+        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+        successfulness = false;
+        return successfulness;
+    }
+    //Loads the font from clearSans.ttf
+    Font = TTF_OpenFont( "clearSans.ttf", FONT_SIZE );
+    if( Font == NULL ){
+        printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
+        successfulness = false;
+        return successfulness;
     }
     return successfulness;
 }
 
 bool drawBackground(){
-    SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0x00);
+    SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0x00);//Sets the background color
 
-    SDL_RenderClear(Renderer);
+    SDL_RenderClear(Renderer);//Fills the screen with background color
 
-    SDL_SetRenderDrawColor(Renderer, 187, 173, 160, 0xFF);
+    SDL_SetRenderDrawColor(Renderer, 187, 173, 160, 0xFF);//Sets the color of the play area
 
-    SDL_Rect fillRect = { MARGIN_X, MARGIN_Y, SQUARE_SIZE, SQUARE_SIZE };
+    SDL_Rect fillRect = { MARGIN_X, MARGIN_Y, SQUARE_SIZE, SQUARE_SIZE };//Sizes for the play area
 
-    SDL_RenderFillRect(Renderer, &fillRect);
-
-    SDL_SetRenderDrawColor(Renderer, 250, 248, 239, 0xFF);
+    SDL_RenderFillRect(Renderer, &fillRect);//Draws the play area
 
     return true;
 }
@@ -119,65 +123,86 @@ void gameover(){
 //Adds a random tile to the board when there are empty tiles left
 bool addRandomTile(boardType& board){//Passing by reference to not create a copy
     bool emptySpaces=false;
+
+    //Checks if there are any empty spaces left
     for(int y = 0; y < GRID_SIZE; y++){
         for(int x = 0; x < GRID_SIZE; x++){
             if(board[x][y] == 0){
                 emptySpaces=true;
             }
         }
+    //If there are no empty spaces left, returns false
     }if(!emptySpaces){
         return false;
     }
+
+    //Generates a random position for the new tile
     int x = getRandomNumber(0,3);
     int y = getRandomNumber(0, 3);
-    if(board[x][y] == 0){//If the tile is empty, add a '2' tile there
+
+    //If the tile is empty, add a '2' tile there
+    if(board[x][y] == 0){
         board[x][y] = 2;
         return true;
     }else{
+        //If the tile is not empty, try again
         return addRandomTile(board);
     }
 }
 bool drawTile(boardType& board){//Passing by reference to not create a copy
-
+    //Going over all the tiles in the board
     for(int y = 0; y < GRID_SIZE; y++){
         for(int x = 0; x < GRID_SIZE; x++){
-            int value = board[x][y];
-            if(value > 0){
-                //Returns the index for the color using the value(As they are powers of 2)
-                int index=log2(value);
-                SDL_SetRenderDrawColor(Renderer, TILE_COLORS[index].r, TILE_COLORS[index].g, TILE_COLORS[index].b, TILE_COLORS[index].a);
-                SDL_Rect tileRect = {MARGIN_X+TILE_MARGIN+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*2};
-                SDL_RenderFillRect(Renderer, &tileRect);
 
-                //to_string(value).c_str() because TTF_RenderText_Solid takes a char*
-                SDL_Color currentColor =  {static_cast<Uint8>(256 - TILE_COLORS[index].r), static_cast<Uint8>(256 - TILE_COLORS[index].g), static_cast<Uint8>(256 - TILE_COLORS[index].b), 255};
-                SDL_Surface* textSurface = TTF_RenderText_Solid( Font,std::to_string(value).c_str() , currentColor);
-                if(textSurface == NULL ){
-                    printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
-                }else{
-                    Texture = SDL_CreateTextureFromSurface(Renderer, textSurface);
-                    if( Texture == NULL ){
-                        printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
-                    }else{
-                        int numberSize = std::to_string(value).size();
-                        SDL_Rect textRect={0,0,0,0};
-                        if(numberSize>2){
-                            textRect = {MARGIN_X+TILE_MARGIN*2+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE/4*numberSize - TILE_MARGIN*(4-numberSize), TILE_SIZE-TILE_MARGIN*2};
-                        }else{
-                            textRect = {MARGIN_X+TILE_MARGIN*4+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE - TILE_MARGIN*8, TILE_SIZE-TILE_MARGIN*4};
-                        }
-                        SDL_RenderCopy(Renderer, Texture, NULL, &textRect);
-                        SDL_FreeSurface(textSurface);
-                        SDL_DestroyTexture(Texture);
-                    }
-                }
-            }else{continue;}
+            int value = board[x][y];
+            if(value == 0){
+                continue;
+            }
+            //Returns the index for the color using the value(As they are powers of 2)
+            int index=log2(value);
+
+            //Draws a tile with the color corresponding to the value
+            SDL_SetRenderDrawColor(Renderer, TILE_COLORS[index].r, TILE_COLORS[index].g, TILE_COLORS[index].b, TILE_COLORS[index].a);
+            SDL_Rect tileRect = {MARGIN_X+TILE_MARGIN+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*2};
+            SDL_RenderFillRect(Renderer, &tileRect);
+
+            //to_string(value).c_str() because TTF_RenderText_Solid takes a char*
+            SDL_Color currentColor =  {static_cast<Uint8>(256 - TILE_COLORS[index].r), static_cast<Uint8>(256 - TILE_COLORS[index].g), static_cast<Uint8>(256 - TILE_COLORS[index].b), 255};
+            SDL_Surface* textSurface = TTF_RenderText_Solid( Font,std::to_string(value).c_str() , currentColor);
+
+            //If unable to create the text surface, return false
+            if(textSurface == NULL ){
+                printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
+                return false;
+            }
+
+            Texture = SDL_CreateTextureFromSurface(Renderer, textSurface);
+
+
+            //If unable to create the texture, return false
+            if( Texture == NULL ){
+                printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+                return false;
+            }
+
+            int numberSize = std::to_string(value).size();
+            SDL_Rect textRect={0,0,0,0};
+
+            if(numberSize>2){
+                textRect = {MARGIN_X+TILE_MARGIN*2+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE/4*numberSize - TILE_MARGIN*(4-numberSize), TILE_SIZE-TILE_MARGIN*2};
+            }else{
+                textRect = {MARGIN_X+TILE_MARGIN*4+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE - TILE_MARGIN*8, TILE_SIZE-TILE_MARGIN*4};
+            }
+
+            SDL_RenderCopy(Renderer, Texture, NULL, &textRect);
+            SDL_FreeSurface(textSurface);
+            SDL_DestroyTexture(Texture);
         }
     }
     return true;      
 }
 
-//Displays the board into the console for debug
+//Displays the board into the console for debugging
 void logBoard(boardType& board){
     for(int y = 0; y < GRID_SIZE; y++){
         for(int x = 0; x < GRID_SIZE; x++){
@@ -186,6 +211,8 @@ void logBoard(boardType& board){
         printf("\n");
     }
 }
+
+//Initializes the board with 2 random tiles and returns it
 boardType initBoard(){
     boardType board={0};
     addRandomTile(board);
@@ -193,8 +220,7 @@ boardType initBoard(){
     return board;
 }
 
-
-
+//Closes the window and hopefully frees all the memory
 void close(){
     SDL_DestroyTexture(Texture);
     Texture = NULL;
