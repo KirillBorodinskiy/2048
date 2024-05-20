@@ -8,15 +8,15 @@
 #include <random>
 #include <string>
 
-int SCREEN_WIDTH = 1920;
-int SCREEN_HEIGHT = 1080;
-int TILE_SIZE = SCREEN_WIDTH/3/4;
-int SQUARE_SIZE = SCREEN_WIDTH/3;
-int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
-int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 const int GRID_SIZE = 4;
 const int TILE_MARGIN = 10;
 const int FONT_SIZE = 250;
+int SCREEN_WIDTH = 1920;
+int SCREEN_HEIGHT = 1080;
+int TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
+int SQUARE_SIZE = SCREEN_WIDTH/3;
+int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 
 enum KeyPressSurfaces
 {
@@ -350,7 +350,7 @@ int main(){
                     case SDL_WINDOWEVENT_SIZE_CHANGED:
                         SCREEN_WIDTH = e.window.data1;
                         SCREEN_HEIGHT = e.window.data2;
-                        TILE_SIZE = SCREEN_WIDTH/3/4;
+                        TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
                         SQUARE_SIZE = SCREEN_WIDTH/3;
                         MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
                         MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
