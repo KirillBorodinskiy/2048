@@ -323,7 +323,6 @@ int main(){
     boardType board = initBoard();//Initializes the board of size GRID_SIZE*GRID_SIZE
 
     while(!quit){//Main loop
-        SDL_RenderClear(Renderer);
 
         while(SDL_PollEvent(&e) != 0){//Event handler
             if(e.type == SDL_QUIT){
@@ -352,6 +351,7 @@ int main(){
         if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
         SDL_RenderPresent(Renderer);//Updates the screen
     }
+    //Closes the window and frees the memory when user closes the game
     close();
     return 0;
 }
