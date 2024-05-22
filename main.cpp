@@ -217,7 +217,6 @@ void close(){
     SDL_Quit();
 }
 
-//TODO make the moves actually boolean
 bool moveUp(boardType& board){
     bool moved = false;
     for(int x=0;x<GRID_SIZE;x++){
@@ -326,7 +325,7 @@ int main(){
             if(event.type == SDL_QUIT){
                 quit = true;
             } else if( event.type == SDL_KEYDOWN ){//User presses a key
-                switch( event.key.keysym.sym ){//TODO make it so that if 4 moves were made and the board is the same, game is over
+                switch( event.key.keysym.sym ){
                     case SDLK_UP:
                     case SDLK_w:
                         if(moveUp(board)){
