@@ -6,6 +6,8 @@
 - compile using "make"
 - launch file "main"
 
+#### If using VSCode, you can just press f5 to compile and launch it after manually installing libraries
+
 ### Keybinds:
 - R: restart
 - Q: quit
