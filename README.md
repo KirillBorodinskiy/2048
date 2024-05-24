@@ -12,3 +12,5 @@
 - R: restart
 - Q: quit
 - WASD/arrows: moving tiles
+
+### Saves the highest score to the file score.txt and automatically extracts the highest score on start

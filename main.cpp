@@ -5,6 +5,7 @@
 #include <cmath>//For log2
 #include <random>//For random number generation
 #include <string>//For std::to_string
+#include <fstream>//For score saving
 
 const int GRID_SIZE = 4;//CAN BE CHANGED TO ANY (practical) SIZE. Default is 4
 
@@ -18,6 +19,8 @@ int TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
 int SQUARE_SIZE = SCREEN_WIDTH/3;
 int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
 int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+unsigned int HIGHEST_SCORE = 0;
+unsigned int CURRENT_SCORE = 0;
 
 
 const SDL_Color TILE_COLORS[] = {
@@ -42,6 +45,8 @@ SDL_Window* Window = NULL;
 SDL_Renderer* Renderer = NULL;
 SDL_Texture* Texture = NULL;
 TTF_Font* Font = NULL;
+SDL_Texture* scoreTexture = NULL;
+SDL_Texture* bestScoreTexture = NULL;
 
 bool init(){
     //Initializes SDL
@@ -93,13 +98,86 @@ bool drawBackground(){
 
     return true;
 }
+//Draws the score above the play area
+bool drawScore(){
+    
+    //Boxes for the score and best score
+    SDL_SetRenderDrawColor(Renderer, 225, 208, 192, 255);
 
+    int scoreRectSize = SQUARE_SIZE/2-TILE_MARGIN*2;
+    SDL_Rect scoreRect = {MARGIN_X+TILE_MARGIN+ SQUARE_SIZE/2, MARGIN_Y/3, scoreRectSize, MARGIN_Y/2};
+    SDL_RenderFillRect(Renderer, &scoreRect);
+
+    SDL_Rect bestScoreRect = {MARGIN_X+TILE_MARGIN, MARGIN_Y/3,scoreRectSize , MARGIN_Y/2};
+    SDL_RenderFillRect(Renderer, &bestScoreRect);
+
+    //Text for the score and best score
+    SDL_Color textColor = {0, 0, 0, 255};
+    std::string scoreText = "Score: " + std::to_string(CURRENT_SCORE);
+    std::string bestScoreText = "Best: " + std::to_string(HIGHEST_SCORE);
+
+    SDL_Surface* bestScoreSurface = TTF_RenderText_Solid( Font, bestScoreText.c_str(), textColor);
+    SDL_Surface* scoreSurface = TTF_RenderText_Solid( Font, scoreText.c_str(), textColor);
+
+    if(scoreSurface == NULL || bestScoreSurface == NULL){
+        printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
+        return false;
+    }
+
+    bestScoreTexture = SDL_CreateTextureFromSurface(Renderer, bestScoreSurface);
+    scoreTexture = SDL_CreateTextureFromSurface(Renderer, scoreSurface);
+
+    if( scoreTexture == NULL || bestScoreTexture == NULL){
+        printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+        return false;
+    }
+
+    //Text boxes for the score and best score
+    int scoreTextRectMargin = MARGIN_X+TILE_MARGIN;
+    int scoreTextRectSize = SQUARE_SIZE/2-TILE_MARGIN*4;
+    SDL_Rect bestScoreTextRect = {scoreTextRectMargin + TILE_MARGIN, MARGIN_Y/3, scoreTextRectSize, MARGIN_Y/2};
+    SDL_Rect scoreTextRect = { scoreTextRectMargin + SQUARE_SIZE/2+ TILE_MARGIN, MARGIN_Y/3,scoreTextRectSize , MARGIN_Y/2};
+
+    //Rendering the text
+    SDL_RenderCopy(Renderer, bestScoreTexture, NULL, &bestScoreTextRect);
+    SDL_RenderCopy(Renderer, scoreTexture, NULL, &scoreTextRect);
+
+    SDL_FreeSurface(bestScoreSurface);
+    SDL_FreeSurface(scoreSurface);
+
+    SDL_DestroyTexture(bestScoreTexture);
+    SDL_DestroyTexture(scoreTexture);
+
+    return true;
+}
 std::random_device rd;
 std::mt19937 gen(rd());
 
 int getRandomNumber(int min, int max) {
     std::uniform_int_distribution<> distrib(min, max);
     return distrib(gen);
+}
+
+//Loads the highest score from the file "score.txt"
+unsigned int loadHighestScore(){
+    unsigned int highestScore;
+    std::ifstream file;
+    file.open("score.txt");
+    if(file.is_open() && !(file >> highestScore)){//If the file is empty, sets the highest score to 0, otherwise reads the highest score
+            highestScore=0;
+    }
+    file.close();
+    return highestScore;
+}
+
+//Saves the highest score to the file "score.txt"
+void saveHighestScore(unsigned int score){
+    std::ofstream file;
+    file.open("score.txt");
+    if(file.is_open()){
+        file << score;
+    }
+    file.close();
 }
 
 //Adds a random tile to the board when there are empty tiles left
@@ -207,6 +285,10 @@ boardType initBoard(){
 //Closes the window and hopefully frees all the memory
 void close(){
     SDL_DestroyTexture(Texture);
+    SDL_DestroyTexture(scoreTexture);
+    SDL_DestroyTexture(bestScoreTexture);
+    scoreTexture = NULL;
+    bestScoreTexture = NULL;
     Texture = NULL;
     SDL_DestroyRenderer(Renderer);
     Renderer = NULL;
@@ -217,92 +299,62 @@ void close(){
     SDL_Quit();
 }
 
-bool moveUp(boardType& board){
+bool moveTiles(boardType& board, int dx, int dy) {
     bool moved = false;
-    for(int x=0;x<GRID_SIZE;x++){
-        for(int y=0;y<GRID_SIZE;y++){
-            if(board[x][y] !=0){
-                while(y>0 && board[x][y-1] == 0){//It will not go out of range because y>0
-                    board[x][y-1] = board[x][y];
+
+    for (int i = 0; i < GRID_SIZE; ++i) {
+        for (int j = 0; j < GRID_SIZE; ++j) {
+            
+            //Current tile
+            int x = dx == 1 ? GRID_SIZE - 1 - j : j;//If dx is 1, x is GRID_SIZE-1-j, otherwise x is j. So it will start from the opposite side if needed
+            int y = dy == 1 ? GRID_SIZE - 1 - i : i;//Same here
+
+            int nextX = x + dx;//If dx is 1, nextX is x+1, if dx is -1, nextX is x-1
+            int nextY = y + dy;//Same here
+
+            while (nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {//While the next tile is within the board
+
+                //If the next tile is empty and the current one is not
+                if (board[nextX][nextY] == 0 && board[x][y] != 0) {
+
+                    board[nextX][nextY] = board[x][y];// Move the tile to the empty spot
                     board[x][y] = 0;
-                    y--;
-                    moved=true;
-                }
-                if(y>0 && board[x][y-1] == board[x][y]){//If the tile above is the same, merge them
-                    board[x][y-1] *= 2;
+
+                    //Go to the next tile
+                    x = nextX;
+                    y = nextY;
+
+                    //Update the next tile
+                    nextX += dx;
+                    nextY += dy;
+
+                    moved = true;
+
+                //If the next tile is the same and not empty
+                } else if (board[nextX][nextY] == board[x][y] && board[x][y] != 0) {
+
+                    // Merge the tiles
+                    board[nextX][nextY] *= 2;
                     board[x][y] = 0;
-                    moved=true;
+
+                    //Update the highest and current score
+                    if(board[nextX][nextY]>CURRENT_SCORE){
+                        CURRENT_SCORE=board[nextX][nextY];
+                        if(CURRENT_SCORE>HIGHEST_SCORE){
+                            HIGHEST_SCORE=CURRENT_SCORE;
+                            saveHighestScore(HIGHEST_SCORE);
+                        }
+                    }
+                    
+                    moved = true;
+                //If nothing can be done, break the loop
+                } else {
+                    break;
                 }
             }
         }
     }
-    addRandomTile(board);
-    return moved;
-}
-bool moveDown(boardType& board){
-    bool moved = false;
-    for(int x=0;x<GRID_SIZE;x++){
-        for(int y=GRID_SIZE-1;y>=0;y--){
-            if(board[x][y] !=0){
-                while(y<GRID_SIZE-1 && board[x][y+1] == 0){//It will not go out of range because y<3(GRID_SIZE-1)
-                    board[x][y+1] = board[x][y];
-                    board[x][y] = 0;
-                    y++;
-                    moved=true;
-                }
-                if(y<GRID_SIZE-1 && board[x][y+1] == board[x][y]){//If the tile below is the same, merge them
-                    board[x][y+1] *= 2;
-                    board[x][y] = 0;
-                    moved=true;
-                }
-            }
-        }
-    }
-    addRandomTile(board);
-    return moved;
-}
-bool moveLeft(boardType& board){
-    bool moved = false;
-    for(int y=0;y<GRID_SIZE;y++){
-        for(int x=0;x<GRID_SIZE;x++){
-            if(board[x][y] !=0){
-                while(x>0 && board[x-1][y] == 0){//It will not go out of range because x>0
-                    board[x-1][y] = board[x][y];
-                    board[x][y] = 0;
-                    x--;
-                    moved=true;
-                }
-                if(x>0 && board[x-1][y] == board[x][y]){//If the tile to the left is the same, merge them
-                    board[x-1][y] *= 2;
-                    board[x][y] = 0;
-                    moved=true;
-                }
-            }
-        }
-    }
-    addRandomTile(board);
-    return moved;
-}
-bool moveRight(boardType& board){
-    bool moved = false;
-    for(int y=0;y<GRID_SIZE;y++){
-        for(int x=GRID_SIZE-1;x>=0;x--){
-            if(board[x][y] !=0){
-                while(x<GRID_SIZE-1 && board[x+1][y] == 0){//It will not go out of range because x<3(GRID_SIZE-1)
-                    board[x+1][y] = board[x][y];
-                    board[x][y] = 0;
-                    x++;
-                    moved=true;
-                }
-                if(x<GRID_SIZE-1 && board[x+1][y] == board[x][y]){//If the tile to the right is the same, merge them
-                    board[x+1][y] *= 2;
-                    board[x][y] = 0;
-                    moved=true;
-                }
-            }
-        }
-    }
-    addRandomTile(board);
+    if(moved){addRandomTile(board);}
     return moved;
 }
 
@@ -316,7 +368,7 @@ int main(){
     bool quit = false;
     SDL_Event event;
     boardType board = initBoard();//Initializes the board of size GRID_SIZE*GRID_SIZE
-    
+    HIGHEST_SCORE = loadHighestScore();//Loads the highest score from the file "score.txt"
     std::array<bool,4> state = {1,1,1,1};//State of the moves, if all are 0, game is over
 
     while(!quit){//Main loop
@@ -328,7 +380,7 @@ int main(){
                 switch( event.key.keysym.sym ){
                     case SDLK_UP:
                     case SDLK_w:
-                        if(moveUp(board)){
+                        if(moveTiles(board,0,-1)){//Up
                             state.fill(1);
                         }else{
                             state[0]=0;
@@ -336,7 +388,7 @@ int main(){
                         break;
                     case SDLK_DOWN:
                     case SDLK_s:
-                        if(moveDown(board)){
+                        if(moveTiles(board,0,1)){//Down
                             state.fill(1);
                         }else{
                             state[1]=0;
@@ -344,7 +396,7 @@ int main(){
                         break;
                     case SDLK_LEFT:
                     case SDLK_a:
-                        if(moveLeft(board)){
+                        if(moveTiles(board,-1,0)){//Left
                             state.fill(1);
                         }else{
                             state[2]=0;
@@ -352,7 +404,7 @@ int main(){
                         break;
                     case SDLK_RIGHT:
                     case SDLK_d:
-                        if(moveRight(board)){
+                        if(moveTiles(board,1,0)){//Right
                             state.fill(1);
                         }else{
                             state[3]=0;
@@ -388,6 +440,7 @@ int main(){
             state.fill(1);
         }
         if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
+        if(!drawScore()){printf("Failed to draw the score");}//Draws the score each loop
         if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
         SDL_RenderPresent(Renderer);//Updates the screen
     }
