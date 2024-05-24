@@ -16,7 +16,7 @@ const int FONT_SIZE = 250;
 int SCREEN_WIDTH = 1920;
 int SCREEN_HEIGHT = 1080;
 int TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
-int SQUARE_SIZE = SCREEN_WIDTH/3;
+int SQUARE_SIZE = std::min(SCREEN_WIDTH* 0.8, SCREEN_HEIGHT* 0.6) ;
 int MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
 int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 unsigned int HIGHEST_SCORE = 0;
@@ -439,8 +439,8 @@ int main(){
                     case SDL_WINDOWEVENT_SIZE_CHANGED:
                         SCREEN_WIDTH = event.window.data1;
                         SCREEN_HEIGHT = event.window.data2;
-                        TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
-                        SQUARE_SIZE = SCREEN_WIDTH/3;
+                        SQUARE_SIZE = std::min(SCREEN_WIDTH* 0.8, SCREEN_HEIGHT* 0.6) ;
+                        TILE_SIZE = SQUARE_SIZE / GRID_SIZE;
                         MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
                         MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
                         break;
