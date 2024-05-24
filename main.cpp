@@ -150,6 +150,7 @@ bool drawScore(){
 
     return true;
 }
+
 std::random_device rd;
 std::mt19937 gen(rd());
 
@@ -163,9 +164,14 @@ unsigned int loadHighestScore(){
     unsigned int highestScore;
     std::ifstream file;
     file.open("score.txt");
-    if(file.is_open() && !(file >> highestScore)){//If the file is empty, sets the highest score to 0, otherwise reads the highest score
+
+    //If the file is empty, sets the highest score to 0, otherwise reads the highest score
+    if(file.is_open() ){
+        if(!(file >> highestScore)){
             highestScore=0;
+        }
     }
+
     file.close();
     return highestScore;
 }
@@ -250,11 +256,12 @@ bool drawTile(boardType& board){//Passing by reference to not create a copy
             int numberSize = std::to_string(value).size();
             SDL_Rect textRect={0,0,0,0};
 
-            if(numberSize>2){
-                textRect = {MARGIN_X+TILE_MARGIN*2+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE/4*numberSize - TILE_MARGIN*(4-numberSize), TILE_SIZE-TILE_MARGIN*2};
+            if(numberSize==1){
+                textRect = {MARGIN_X + TILE_MARGIN*3 + x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*6, TILE_SIZE-TILE_MARGIN*4};
             }else{
-                textRect = {MARGIN_X+TILE_MARGIN*4+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE - TILE_MARGIN*8, TILE_SIZE-TILE_MARGIN*4};
+                textRect = {MARGIN_X + TILE_MARGIN + x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*4};
             }
+            //  textRect = {MARGIN_X+TILE_MARGIN*2*(4-numberSize)+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE/4*(4-numberSize)-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*4};
 
             SDL_RenderCopy(Renderer, Texture, NULL, &textRect);
             SDL_FreeSurface(textSurface);
