@@ -87,7 +87,7 @@ bool init(){
         printf( "Render scale is not set properly" );
     }
     //Creates the window
-    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(Window == NULL){
         printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
         return false;
@@ -289,6 +289,7 @@ void logBoard(boardType& board){
 
 //Initializes the board with 2 random tiles and returns it
 boardType initBoard(){
+    CURRENT_SCORE=0;//Initializes the current score to 0
     boardType board={0};
     addRandomTile(board);
     addRandomTile(board);
