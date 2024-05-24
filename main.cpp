@@ -438,23 +438,10 @@ int main(){
                     case SDL_WINDOWEVENT_SIZE_CHANGED:
                         SCREEN_WIDTH = event.window.data1;
                         SCREEN_HEIGHT = event.window.data2;
-
-                        if(SCREEN_WIDTH<1000){
-
-                            SCREEN_HEIGHT=SCREEN_WIDTH;
-                            TILE_SIZE = SCREEN_WIDTH/1.2/GRID_SIZE;
-                            SQUARE_SIZE = SCREEN_WIDTH/1.2;
-                            MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
-                            MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
-
-                        }else{
-
-                            TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
-                            SQUARE_SIZE = SCREEN_WIDTH/3;
-                            MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
-                            MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
-
-                        }
+                        TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
+                        SQUARE_SIZE = SCREEN_WIDTH/3;
+                        MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+                        MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
                         break;
                     default:
                         break;
