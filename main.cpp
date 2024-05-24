@@ -166,7 +166,7 @@ unsigned int loadHighestScore(){
     std::ifstream file;
     file.open("score.txt");
 
-    //If the file is empty, sets the highest score to 0, otherwise reads the highest score
+    //If something is wrong with the file, highest score is 0, otherwise it is the value in the file
     if(file.is_open()){
         if(!(file >> highestScore)){
             highestScore=0;
