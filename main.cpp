@@ -161,12 +161,13 @@ int getRandomNumber(int min, int max) {
 
 //Loads the highest score from the file "score.txt"
 unsigned int loadHighestScore(){
-    unsigned int highestScore;
+
+    unsigned int highestScore=0;//Preinitialized to 0 just in case
     std::ifstream file;
     file.open("score.txt");
 
     //If the file is empty, sets the highest score to 0, otherwise reads the highest score
-    if(file.is_open() ){
+    if(file.is_open()){
         if(!(file >> highestScore)){
             highestScore=0;
         }
