@@ -48,6 +48,35 @@ TTF_Font* Font = NULL;
 SDL_Texture* scoreTexture = NULL;
 SDL_Texture* bestScoreTexture = NULL;
 
+
+//Loads the highest score from the file "score.txt"
+unsigned int loadHighestScore(){
+
+    unsigned int highestScore=0;//Preinitialized to 0 just in case
+    std::ifstream file;
+    file.open("score.txt");
+
+    //If something is wrong with the file, highest score is 0, otherwise it is the value in the file
+    if(file.is_open()){
+        if(!(file >> highestScore)){
+            highestScore=0;
+        }
+    }
+
+    file.close();
+    return highestScore;
+}
+
+//Saves the highest score to the file "score.txt"
+void saveHighestScore(unsigned int score){
+    std::ofstream file;
+    file.open("score.txt");
+    if(file.is_open()){
+        file << score;
+    }
+    file.close();
+}
+
 bool init(){
     //Initializes SDL
     if(SDL_Init(SDL_INIT_VIDEO)<0){
@@ -58,7 +87,7 @@ bool init(){
         printf( "Render scale is not set properly" );
     }
     //Creates the window
-    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if(Window == NULL){
         printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
         return false;
@@ -80,6 +109,8 @@ bool init(){
         printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
         return false;
     }
+    HIGHEST_SCORE = loadHighestScore();//Loads the highest score from the file "score.txt"
+    CURRENT_SCORE=0;//Initializes the current score to 0
     return true;
 }
 
@@ -159,33 +190,7 @@ int getRandomNumber(int min, int max) {
     return distrib(gen);
 }
 
-//Loads the highest score from the file "score.txt"
-unsigned int loadHighestScore(){
 
-    unsigned int highestScore=0;//Preinitialized to 0 just in case
-    std::ifstream file;
-    file.open("score.txt");
-
-    //If something is wrong with the file, highest score is 0, otherwise it is the value in the file
-    if(file.is_open()){
-        if(!(file >> highestScore)){
-            highestScore=0;
-        }
-    }
-
-    file.close();
-    return highestScore;
-}
-
-//Saves the highest score to the file "score.txt"
-void saveHighestScore(unsigned int score){
-    std::ofstream file;
-    file.open("score.txt");
-    if(file.is_open()){
-        file << score;
-    }
-    file.close();
-}
 
 //Adds a random tile to the board when there are empty tiles left
 bool addRandomTile(boardType& board){//Passing by reference to not create a copy
@@ -376,7 +381,7 @@ int main(){
     bool quit = false;
     SDL_Event event;
     boardType board = initBoard();//Initializes the board of size GRID_SIZE*GRID_SIZE
-    HIGHEST_SCORE = loadHighestScore();//Loads the highest score from the file "score.txt"
+    
     std::array<bool,4> state = {1,1,1,1};//State of the moves, if all are 0, game is over
 
     while(!quit){//Main loop
@@ -433,10 +438,23 @@ int main(){
                     case SDL_WINDOWEVENT_SIZE_CHANGED:
                         SCREEN_WIDTH = event.window.data1;
                         SCREEN_HEIGHT = event.window.data2;
-                        TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
-                        SQUARE_SIZE = SCREEN_WIDTH/3;
-                        MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
-                        MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+
+                        if(SCREEN_WIDTH<1000){
+
+                            SCREEN_HEIGHT=SCREEN_WIDTH;
+                            TILE_SIZE = SCREEN_WIDTH/1.2/GRID_SIZE;
+                            SQUARE_SIZE = SCREEN_WIDTH/1.2;
+                            MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+                            MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+
+                        }else{
+
+                            TILE_SIZE = SCREEN_WIDTH/3/GRID_SIZE;
+                            SQUARE_SIZE = SCREEN_WIDTH/3;
+                            MARGIN_X = (SCREEN_WIDTH - SQUARE_SIZE) / 2;
+                            MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
+
+                        }
                         break;
                     default:
                         break;
