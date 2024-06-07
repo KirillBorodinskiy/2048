@@ -1,3 +1,6 @@
+#include "SDL_render.h"
+#include "SDL_surface.h"
+#include "SDL_video.h"
 #include <SDL.h>//Main SDL library
 #include <SDL_ttf.h>//SDL_ttf for text rendering
 #include <array>//For 2D arrays
@@ -6,6 +9,7 @@
 #include <random>//For random number generation
 #include <string>//For std::to_string
 #include <fstream>//For score saving
+#include <memory>
 
 const int GRID_SIZE = 4;//CAN BE CHANGED TO ANY (practical) SIZE. Default is 4
 
@@ -22,7 +26,6 @@ int MARGIN_Y = (SCREEN_HEIGHT - SQUARE_SIZE) / 2;
 unsigned int HIGHEST_SCORE = 0;
 unsigned int CURRENT_SCORE = 0;
 
-
 const SDL_Color TILE_COLORS[] = {
     {205, 193, 180, 255}, // 0
     {238, 228, 218, 255}, // 2
@@ -38,16 +41,34 @@ const SDL_Color TILE_COLORS[] = {
     {237, 194, 46, 255}   // 2048
 };
 
+// Custom deleters functions
+auto surface_deleter = [](SDL_Surface* surface) { SDL_FreeSurface(surface); };
+auto texture_deleter = [](SDL_Texture* texture) { SDL_DestroyTexture(texture); };
+
+//Not working with unique_ptr
+// auto font_deleter = [](TTF_Font* font) { TTF_CloseFont(font); };
+// auto window_deleter = [](SDL_Window* window) { SDL_DestroyWindow(window); };
+// auto renderer_deleter = [](SDL_Renderer* renderer) { SDL_DestroyRenderer(renderer); };
+
+
+// std::unique_ptr with custom deleters
+typedef std::unique_ptr<SDL_Surface, decltype(surface_deleter)> SurfacePtr;
+typedef std::unique_ptr<SDL_Texture, decltype(texture_deleter)> TexturePtr;
+//Same
+// typedef std::unique_ptr<TTF_Font, decltype(font_deleter)> FontPtr;
+// typedef std::unique_ptr<SDL_Window, decltype(window_deleter)> WindowPtr;
+// typedef std::unique_ptr<SDL_Renderer, decltype(renderer_deleter)> RendererPtr;
+
 typedef std::array<std::array<unsigned int,GRID_SIZE>,GRID_SIZE> boardType;//2D array for the board
 
-//SDL variables pre-declared and initialized to NULL
-SDL_Window* Window = NULL;
-SDL_Renderer* Renderer = NULL;
-SDL_Texture* Texture = NULL;
-TTF_Font* Font = NULL;
-SDL_Texture* scoreTexture = NULL;
-SDL_Texture* bestScoreTexture = NULL;
+//Same
+// RendererPtr Renderer(nullptr, renderer_deleter);
+// WindowPtr Window(nullptr, window_deleter);
+// FontPtr Font(nullptr, font_deleter);
 
+SDL_Renderer* Renderer = nullptr;
+SDL_Window* Window = nullptr;
+TTF_Font* Font = nullptr;
 
 //Loads the highest score from the file "score.txt"
 unsigned int loadHighestScore(){
@@ -86,29 +107,42 @@ bool init(){
     if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "2" ) ){
         printf( "Render scale is not set properly" );
     }
+
+    
+    // SDL_Window* tempWindow = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     //Creates the window
     Window = SDL_CreateWindow("2048 game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(Window == NULL){
         printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
         return false;
     }
+    // Window.reset(tempWindow);
+
+    
+    // SDL_Renderer* tempRenderer = SDL_CreateRenderer(Window.get(), -1, SDL_RENDERER_ACCELERATED);
     //Creates the renderer
     Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
     if(Renderer == NULL){
         printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
         return false;
     }
+    // Renderer.reset(tempRenderer);
+
     //Initializes SDL_ttf
     if(TTF_Init() == -1){
         printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
         return false;
     }
+    
+    // TTF_Font* tempFont = TTF_OpenFont( "clearSans.ttf", FONT_SIZE );
     //Loads the font from clearSans.ttf
     Font = TTF_OpenFont( "clearSans.ttf", FONT_SIZE );
-    if( Font == NULL ){
+    if(Font == NULL ){
         printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
         return false;
     }
+    // Font.reset(tempFont);
+
     HIGHEST_SCORE = loadHighestScore();//Loads the highest score from the file "score.txt"
     CURRENT_SCORE=0;//Initializes the current score to 0
     return true;
@@ -129,6 +163,7 @@ bool drawBackground(){
 
     return true;
 }
+
 //Draws the score above the play area
 bool drawScore(){
     
@@ -137,26 +172,26 @@ bool drawScore(){
 
     int scoreRectSize = SQUARE_SIZE/2-TILE_MARGIN*2;
     SDL_Rect scoreRect = {MARGIN_X+TILE_MARGIN+ SQUARE_SIZE/2, MARGIN_Y/3, scoreRectSize, MARGIN_Y/2};
-    SDL_RenderFillRect(Renderer, &scoreRect);
+    SDL_RenderFillRect(Renderer , &scoreRect);
 
     SDL_Rect bestScoreRect = {MARGIN_X+TILE_MARGIN, MARGIN_Y/3,scoreRectSize , MARGIN_Y/2};
-    SDL_RenderFillRect(Renderer, &bestScoreRect);
+    SDL_RenderFillRect(Renderer , &bestScoreRect);
 
     //Text for the score and best score
     SDL_Color textColor = {0, 0, 0, 255};
     std::string scoreText = "Score: " + std::to_string(CURRENT_SCORE);
     std::string bestScoreText = "Best: " + std::to_string(HIGHEST_SCORE);
 
-    SDL_Surface* bestScoreSurface = TTF_RenderText_Solid( Font, bestScoreText.c_str(), textColor);
-    SDL_Surface* scoreSurface = TTF_RenderText_Solid( Font, scoreText.c_str(), textColor);
+    SurfacePtr bestScoreSurface(TTF_RenderText_Solid(Font , bestScoreText.c_str(), textColor), surface_deleter);
+    SurfacePtr scoreSurface(TTF_RenderText_Solid(Font , scoreText.c_str(), textColor), surface_deleter);
 
     if(scoreSurface == NULL || bestScoreSurface == NULL){
         printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
         return false;
     }
 
-    bestScoreTexture = SDL_CreateTextureFromSurface(Renderer, bestScoreSurface);
-    scoreTexture = SDL_CreateTextureFromSurface(Renderer, scoreSurface);
+    TexturePtr bestScoreTexture(SDL_CreateTextureFromSurface(Renderer , bestScoreSurface.get()), texture_deleter);
+    TexturePtr scoreTexture(SDL_CreateTextureFromSurface(Renderer , scoreSurface.get()), texture_deleter);
 
     if( scoreTexture == NULL || bestScoreTexture == NULL){
         printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
@@ -170,14 +205,8 @@ bool drawScore(){
     SDL_Rect scoreTextRect = { scoreTextRectMargin + SQUARE_SIZE/2+ TILE_MARGIN, MARGIN_Y/3,scoreTextRectSize , MARGIN_Y/2};
 
     //Rendering the text
-    SDL_RenderCopy(Renderer, bestScoreTexture, NULL, &bestScoreTextRect);
-    SDL_RenderCopy(Renderer, scoreTexture, NULL, &scoreTextRect);
-
-    SDL_FreeSurface(bestScoreSurface);
-    SDL_FreeSurface(scoreSurface);
-
-    SDL_DestroyTexture(bestScoreTexture);
-    SDL_DestroyTexture(scoreTexture);
+    SDL_RenderCopy(Renderer , bestScoreTexture.get(), NULL, &bestScoreTextRect);
+    SDL_RenderCopy(Renderer , scoreTexture.get(), NULL, &scoreTextRect);
 
     return true;
 }
@@ -236,21 +265,20 @@ bool drawTile(boardType& board){//Passing by reference to not create a copy
             int index=log2(value);
 
             //Draws a tile with the color corresponding to the value
-            SDL_SetRenderDrawColor(Renderer, TILE_COLORS[index].r, TILE_COLORS[index].g, TILE_COLORS[index].b, TILE_COLORS[index].a);
+            SDL_SetRenderDrawColor(Renderer , TILE_COLORS[index].r, TILE_COLORS[index].g, TILE_COLORS[index].b, TILE_COLORS[index].a);
             SDL_Rect tileRect = {MARGIN_X+TILE_MARGIN+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*2};
-            SDL_RenderFillRect(Renderer, &tileRect);
+            SDL_RenderFillRect(Renderer , &tileRect);
 
             //to_string(value).c_str() because TTF_RenderText_Solid takes a char*
-            SDL_Color currentColor =  {static_cast<Uint8>(256 - TILE_COLORS[index].r), static_cast<Uint8>(256 - TILE_COLORS[index].g), static_cast<Uint8>(256 - TILE_COLORS[index].b), 255};
-            SDL_Surface* textSurface = TTF_RenderText_Solid( Font,std::to_string(value).c_str() , currentColor);
+            SDL_Color currentColor =  {static_cast<Uint8>(255 - TILE_COLORS[index].r), static_cast<Uint8>(255 - TILE_COLORS[index].g), static_cast<Uint8>(255 - TILE_COLORS[index].b), 255};
+            SurfacePtr textSurface(TTF_RenderText_Solid(Font , std::to_string(value).c_str(), currentColor), surface_deleter);
 
             //If unable to create the text surface, return false
             if(textSurface == NULL ){
                 printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
                 return false;
             }
-
-            Texture = SDL_CreateTextureFromSurface(Renderer, textSurface);
+            TexturePtr Texture(SDL_CreateTextureFromSurface(Renderer , textSurface.get()), texture_deleter);
 
 
             //If unable to create the texture, return false
@@ -267,11 +295,8 @@ bool drawTile(boardType& board){//Passing by reference to not create a copy
             }else{
                 textRect = {MARGIN_X + TILE_MARGIN + x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*4};
             }
-            //  textRect = {MARGIN_X+TILE_MARGIN*2*(4-numberSize)+x * TILE_SIZE,MARGIN_Y+TILE_MARGIN*2+ y * TILE_SIZE, TILE_SIZE/4*(4-numberSize)-TILE_MARGIN*2, TILE_SIZE-TILE_MARGIN*4};
 
-            SDL_RenderCopy(Renderer, Texture, NULL, &textRect);
-            SDL_FreeSurface(textSurface);
-            SDL_DestroyTexture(Texture);
+            SDL_RenderCopy(Renderer , Texture.get() , NULL, &textRect);
         }
     }
     return true;      
@@ -298,18 +323,7 @@ boardType initBoard(){
 
 //Closes the window and hopefully frees all the memory
 void close(){
-    SDL_DestroyTexture(Texture);
-    SDL_DestroyTexture(scoreTexture);
-    SDL_DestroyTexture(bestScoreTexture);
-    scoreTexture = NULL;
-    bestScoreTexture = NULL;
-    Texture = NULL;
-    SDL_DestroyRenderer(Renderer);
-    Renderer = NULL;
-    SDL_DestroyWindow(Window);
-    Window = NULL;
     TTF_Quit();
-    Font=NULL;
     SDL_Quit();
 }
 
@@ -456,7 +470,7 @@ int main(){
         if(!drawBackground()){printf("Failed to draw the background");}//Draws the background each loop
         if(!drawScore()){printf("Failed to draw the score");}//Draws the score each loop
         if(!drawTile(board)){printf("Failed to draw the tiles");}//Draws the tiles each loop
-        SDL_RenderPresent(Renderer);//Updates the screen
+        SDL_RenderPresent(Renderer );//Updates the screen
     }
     //Closes the window and frees the memory when user closes the game
     close();
